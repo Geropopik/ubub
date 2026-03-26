@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>GameClass | Энциклопедия игровых миров</title>
+  <!-- Подключаем Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Подключаем Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Кастомные стили + улучшенные анимации + плавная обводка для всех элементов -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Кастомный скроллбар - эстетичный */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b1120;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #818cf8, #c084fc);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #a5b4fc, #e879f9);
+    }
+
+    /* Анимации для плавности */
+    @keyframes slow-zoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
+    }
+    .animate-slow-zoom {
+      animation: slow-zoom 24s ease-in-out infinite alternate;
+    }
+
+    /* Градиентный текст с сиянием */
+    .gradient-text-glow {
+      background: linear-gradient(125deg, #FFFFFF, #c4b5fd, #a78bfa, #f0abfc);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* Эффект стекла премиум */
+    .glass-premium {
+      background: rgba(15, 25, 45, 0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(129, 140, 248, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .glass-premium:hover {
+      border-color: rgba(129, 140, 248, 0.7);
+      box-shadow: 0 8px 32px rgba(129, 140, 248, 0.2);
+    }
+
+    .glass-card {
+      background: rgba(20, 30, 55, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Плавная обводка для всех карточек и интерактивных элементов */
+    .glass-card, 
+    .glass-premium,
+    .btn-glow,
+    nav a,
+    .platform-item,
+    .footer-link,
+    .hover-border {
+      position: relative;
+      isolation: isolate;
+    }
+    
+    /* Универсальная анимированная обводка при наведении */
+    .glass-card::after,
+    .glass-premium::after,
+    .hover-glow-border::after,
+    button::after,
+    a:not(.no-border)::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(129, 140, 248, 0), rgba(167, 139, 250, 0), rgba(244, 114, 182, 0));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      transition: all 0.5s ease;
+      opacity: 0;
+    }
+    
+    .glass-card:hover::after,
+    .glass-premium:hover::after,
+    .hover-glow-border:hover::after,
+    button:hover::after,
+    a:not(.no-border):hover::after {
+      opacity: 1;
+      background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+      animation: borderPulse 0.6s ease-out;
+    }
+    
+    @keyframes borderPulse {
+      0% {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    /* Специальный класс для карточек с изображениями */
+    .image-card {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+    
+    .image-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      padding: 2px;
+      background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .image-card:hover::after {
+      opacity: 1;
+    }
+    
+    /* Обводка для навигационных ссылок */
+    .nav-link {
+      position: relative;
+    }
+    
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #818cf8, #c084fc);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::before {
+      width: 100%;
+    }
+    
+    /* Кнопки с градиентной обводкой */
+    .btn-outline-glow {
+      position: relative;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-outline-glow:hover {
+      border-color: rgba(129, 140, 248, 0.5);
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.3);
+    }
+    
+    /* Эффект свечения для иконок платформ */
+    .platform-icon {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .platform-icon:hover {
+      transform: translateY(-3px);
+      filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.6));
+    }
+    
+    /* Карточки жанров с дополнительной обводкой */
+    .genre-card {
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    
+    .genre-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(129, 140, 248, 0.3), rgba(192, 132, 252, 0.3));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    
+    .genre-card:hover::before {
+      opacity: 1;
+    }
+    
+    .glass-card:hover {
+      background: rgba(30, 41, 75, 0.75);
+      border-color: rgba(129, 140, 248, 0.5);
+      transform: translateY(-8px);
+      box-shadow: 0 25px 35px -12px rgba(79, 70, 229, 0.4);
+    }
+    
+    /* Анимация появления при скролле */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Дополнительная обводка для ссылок в тексте */
+    .text-link {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .text-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: linear-gradient(90deg, #818cf8, #c084fc);
+      transition: width 0.3s ease;
+    }
+    
+    .text-link:hover::after {
+      width: 100%;
+    }
+    
+    /* Стили для hover-lift */
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Кнопка с эффектом обводки */
+    .btn-glow {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn-glow:hover::before {
+      left: 100%;
+    }
+  </style>
+</head>
+<body class="bg-gray-950 text-gray-100 font-sans antialiased overflow-x-hidden">
+
+  <!-- ШАПКА (стильная стеклянная) -->
+  <header class="fixed w-full z-50 transition-all duration-300 bg-gray-900/40 backdrop-blur-xl border-b border-white/10">
+    <div class="container mx-auto flex flex-wrap p-4 md:p-5 flex-col md:flex-row items-center justify-between">
+      <a class="flex title-font font-bold items-center text-white gap-2 group cursor-pointer no-border">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-110 transition relative overflow-hidden">
+          <i class="fas fa-gamepad text-white text-xl"></i>
+        </div>
+        <span class="text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">GameClass</span>
+      </a>
+      
+      <nav class="flex flex-wrap items-center text-base justify-center gap-7 mt-2 md:mt-0">
+        <a href="terminology.html" class="nav-link relative text-gray-300 hover:text-white font-medium transition group text-sm md:text-base">Терминология</a>
+        <a href="Full.html" target="_blank" class="nav-link relative text-gray-300 hover:text-white font-medium transition group text-sm md:text-base">Подробная информация</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO СЕКЦИЯ -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <div class="absolute inset-0">
+      <img src="./1.2.webp" alt="Игровой фон" class="w-full h-full object-cover object-center animate-slow-zoom opacity-40">
+      <div class="absolute inset-0 bg-gradient-to-tr from-gray-950 via-indigo-950/70 to-purple-950/60 mix-blend-overlay"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(79,70,229,0.2),transparent_70%)]"></div>
+    </div>
+
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] animate-pulse"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-600/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+    
+    <div class="relative container mx-auto px-6 lg:px-12 z-20 py-20">
+      <div class="flex flex-col lg:flex-row items-center gap-14">
+        <div class="flex-1 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-5 py-2 mb-8 rounded-full bg-indigo-500/10 border border-indigo-400/40 backdrop-blur-sm hover:border-indigo-400/80 transition-all duration-300">
+            <i class="fas fa-crown text-yellow-400 text-xs"></i>
+            <span class="text-indigo-200 text-sm font-medium tracking-wide">Игровая аналитика 2026</span>
+          </div>
+          
+          <h1 class="text-5xl md:text-7xl font-black mb-6 leading-[1.2]">
+            <span class="gradient-text-glow">Разнообразие игр,</span><br>
+            <span class="text-white drop-shadow-2xl">разбираем их<br>классификации.</span>
+          </h1>
+          
+          <p class="text-lg md:text-xl text-gray-200/90 max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+            От экшенов до стратегий, от казуальных проектов до крупных блокбастеров — 
+            погрузитесь в мир игровых жанров и их уникальных особенностей.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
+            <a href="#genres" class="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 hover:scale-105 btn-glow">
+              <span class="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500"></span>
+              <span class="relative flex items-center gap-2">
+                Исследовать жанры <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+              </span>
+            </a>
+            <a href="#conclusion" class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-200 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl hover:bg-white/20 hover:scale-105 transition-all duration-300 btn-outline-glow">
+              Читать заключение
+            </a>
+          </div>
+        </div>
+        
+        <div class="flex-1 perspective perspective-1000">
+          <div class="relative transform transition-all duration-500 hover:rotate-y-6 hover:scale-105" style="transform-style: preserve-3d;">
+            <div class="glass-premium rounded-3xl p-8 shadow-2xl border border-indigo-400/30 hover:border-indigo-400/70 transition-all duration-300">
+              <h3 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-gamepad text-indigo-400 text-4xl platform-icon"></i>
+                <span>Платформы будущего</span>
+              </h3>
+              <div class="grid grid-cols-2 gap-5">
+                <div class="bg-white/5 p-5 rounded-2xl text-center backdrop-blur-sm transition-all duration-300 platform-icon cursor-pointer hover:bg-white/15 hover:scale-105">
+                  <i class="fas fa-desktop text-4xl text-indigo-300 mb-2"></i>
+                  <p class="font-semibold text-lg">ПК</p>
+                  <span class="text-xs text-indigo-200">Ultra-настройки</span>
+                </div>
+                <div class="bg-white/5 p-5 rounded-2xl text-center transition-all duration-300 platform-icon cursor-pointer hover:bg-white/15 hover:scale-105">
+                  <i class="fas fa-gamepad text-4xl text-purple-300 mb-2"></i>
+                  <p class="font-semibold text-lg">Консоли</p>
+                  <span class="text-xs text-purple-200">PS5, Xbox, Switch</span>
+                </div>
+                <div class="bg-white/5 p-5 rounded-2xl text-center transition-all duration-300 platform-icon cursor-pointer hover:bg-white/15 hover:scale-105">
+                  <i class="fas fa-mobile-alt text-4xl text-pink-300 mb-2"></i>
+                  <p class="font-semibold text-lg">Мобайл</p>
+                  <span class="text-xs text-pink-200">Cloud gaming</span>
+                </div>
+                <div class="bg-white/5 p-5 rounded-2xl text-center transition-all duration-300 platform-icon cursor-pointer hover:bg-white/15 hover:scale-105">
+                  <i class="fas fa-vr-cardboard text-4xl text-blue-300 mb-2"></i>
+                  <p class="font-semibold text-lg">VR/AR</p>
+                  <span class="text-xs text-blue-200">Иммерсивный опыт</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+      <a href="#genres" class="flex flex-col items-center text-gray-400 text-xs gap-1 hover:text-indigo-400 transition-colors">
+        <span>Листай вниз</span>
+        <i class="fas fa-chevron-down"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- СЕКЦИЯ ЖАНРОВ -->
+  <section id="genres" class="py-28 relative bg-gradient-to-b from-gray-900 to-gray-950">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%234f46e5" fill-opacity="0.03"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+    <div class="container mx-auto px-6 relative z-10">
+      <div class="text-center mb-16 fade-up">
+        <span class="text-indigo-400 font-semibold tracking-wide uppercase text-sm">Библиотека жанров</span>
+        <h2 class="text-5xl md:text-6xl font-bold mt-3 mb-4">
+          <span class="gradient-text-glow">Основные жанры</span>
+          <span class="text-white"> игр</span>
+        </h2>
+        <div class="w-28 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto rounded-full mb-5"></div>
+        <p class="text-gray-300 text-lg max-w-2xl mx-auto">Шесть столпов игровой индустрии — от динамичных экшенов до глубоких стратегий</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+        <!-- Все карточки жанров с классом genre-card и glass-card -->
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-indigo-500/20 flex items-center justify-center shadow-inner transition-all duration-300 group-hover:scale-110">
+              <i class="fas fa-crosshairs text-2xl text-indigo-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Экшн</h3>
+          </div>
+          <p class="text-gray-300 mb-4 leading-relaxed">Call of Duty, Counter-Strike, Devil May Cry, Doom, Bayonetta</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 text-xs bg-indigo-500/20 text-indigo-200 rounded-full transition-all hover:bg-indigo-500/40">Шутеры</span>
+            <span class="px-3 py-1 text-xs bg-purple-500/20 text-purple-200 rounded-full transition-all hover:bg-purple-500/40">Файтинги</span>
+            <span class="px-3 py-1 text-xs bg-pink-500/20 text-pink-200 rounded-full transition-all hover:bg-pink-500/40">Слэшеры</span>
+          </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+              <i class="fas fa-compass text-2xl text-emerald-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Приключения</h3>
+          </div>
+          <p class="text-gray-300 mb-4">The Legend of Zelda, Monkey Island, Life is Strange, Grim Fandango</p>
+          <div class="flex gap-2">
+            <span class="px-3 py-1 text-xs bg-green-500/20 text-green-200 rounded-full hover:bg-green-500/40 transition">Квесты</span>
+            <span class="px-3 py-1 text-xs bg-emerald-500/20 text-emerald-200 rounded-full hover:bg-emerald-500/40 transition">Интерактивное кино</span>
+          </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+              <i class="fas fa-smile text-2xl text-yellow-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Казуальные</h3>
+          </div>
+          <p class="text-gray-300 mb-4">Candy Crush, Angry Birds, Among Us, Stardew Valley, Animal Crossing</p>
+          <div class="flex gap-2">
+            <span class="px-3 py-1 text-xs bg-yellow-500/20 text-yellow-200 rounded-full hover:bg-yellow-500/40 transition">Головоломки</span>
+            <span class="px-3 py-1 text-xs bg-orange-500/20 text-orange-200 rounded-full hover:bg-orange-500/40 transition">Аркады</span>
+          </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-rose-500/20 flex items-center justify-center">
+              <i class="fas fa-dragon text-2xl text-rose-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Ролевые</h3>
+          </div>
+          <p class="text-gray-300 mb-4">The Witcher, Final Fantasy, Elden Ring, Baldur's Gate, Skyrim</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 text-xs bg-red-500/20 text-red-200 rounded-full hover:bg-red-500/40 transition">JRPG</span>
+            <span class="px-3 py-1 text-xs bg-rose-500/20 text-rose-200 rounded-full hover:bg-rose-500/40 transition">WRPG</span>
+            <span class="px-3 py-1 text-xs bg-orange-500/20 text-orange-200 rounded-full hover:bg-orange-500/40 transition">Экшн-RPG</span>
+          </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-sky-500/20 flex items-center justify-center">
+              <i class="fas fa-city text-2xl text-sky-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Симуляторы</h3>
+          </div>
+          <p class="text-gray-300 mb-4">The Sims, SimCity, Microsoft Flight Simulator, Farming Simulator</p>
+          <div class="flex gap-2">
+            <span class="px-3 py-1 text-xs bg-blue-500/20 text-blue-200 rounded-full hover:bg-blue-500/40 transition">Жизни</span>
+            <span class="px-3 py-1 text-xs bg-cyan-500/20 text-cyan-200 rounded-full hover:bg-cyan-500/40 transition">Технические</span>
+          </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 transition-all hover-lift genre-card fade-up">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="w-14 h-14 rounded-xl bg-violet-500/20 flex items-center justify-center">
+              <i class="fas fa-chess-queen text-2xl text-violet-400"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold text-white">Стратегии</h3>
+          </div>
+          <p class="text-gray-300 mb-4">StarCraft, Civilization, Age of Empires, Total War, XCOM</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 text-xs bg-purple-500/20 text-purple-200 rounded-full hover:bg-purple-500/40 transition">RTS</span>
+            <span class="px-3 py-1 text-xs bg-violet-500/20 text-violet-200 rounded-full hover:bg-violet-500/40 transition">Пошаговые</span>
+            <span class="px-3 py-1 text-xs bg-indigo-500/20 text-indigo-200 rounded-full hover:bg-indigo-500/40 transition">Глобальные</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- СЕКЦИЯ ИНЫХ КЛАССИФИКАЦИЙ -->
+  <section class="py-28 bg-gray-900/80 relative">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-16 fade-up">
+        <h2 class="text-4xl md:text-5xl font-bold text-white mb-3">Иные виды классификации</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto rounded-full"></div>
+        <p class="text-gray-400 text-lg mt-5">Жанр — не единственный способ систематизировать игры</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="image-card glass-card rounded-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] fade-up">
+          <div class="relative h-56 overflow-hidden">
+            <img src="фото 8.jpg" alt="Перспектива" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent"></div>
+            <h3 class="absolute bottom-5 left-6 text-2xl font-bold tracking-wide">По перспективе</h3>
+          </div>
+          <div class="p-6">
+            <ul class="space-y-3">
+              <li class="flex gap-3 items-start hover:translate-x-1 transition-transform"><i class="fas fa-eye text-indigo-400 mt-1"></i><span><strong class="text-white">От первого лица</strong> <span class="text-gray-300">— полное погружение</span></span></li>
+              <li class="flex gap-3 items-start hover:translate-x-1 transition-transform"><i class="fas fa-user text-purple-400 mt-1"></i><span><strong class="text-white">От третьего лица</strong> <span class="text-gray-300">— контроль персонажа</span></span></li>
+              <li class="flex gap-3 items-start hover:translate-x-1 transition-transform"><i class="fas fa-map text-blue-400 mt-1"></i><span><strong class="text-white">Изометрия/вид сверху</strong> <span class="text-gray-300">— тактический обзор</span></span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="image-card glass-card rounded-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] fade-up">
+          <div class="relative h-56 overflow-hidden">
+            <img src="фото 10.jpg" alt="Масштаб" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent"></div>
+            <h3 class="absolute bottom-5 left-6 text-2xl font-bold">По масштабу</h3>
+          </div>
+          <div class="p-6">
+            <ul class="space-y-3">
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-star text-yellow-400 mt-1"></i><span><strong class="text-white">Крупные</strong> — AAA-блокбастеры</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-star-half-alt text-blue-400 mt-1"></i><span><strong class="text-white">Средние</strong> — AA-проекты</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-code text-green-400 mt-1"></i><span><strong class="text-white">Независимые</strong> — инди-хиты</span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="image-card glass-card rounded-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] fade-up">
+          <div class="relative h-56 overflow-hidden">
+            <img src="фото 9.jpg" alt="Игроки" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950"></div>
+            <h3 class="absolute bottom-5 left-6 text-2xl font-bold">По количеству игроков</h3>
+          </div>
+          <div class="p-6">
+            <ul class="space-y-3">
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-user text-green-400 mt-1"></i><span><strong class="text-white">Одиночные</strong> — сюжетные кампании</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-users text-blue-400 mt-1"></i><span><strong class="text-white">Многопользовательские</strong> — кооператив/PvP</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-globe text-purple-400 mt-1"></i><span><strong class="text-white">Массовые</strong> — MMO миры</span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="image-card glass-card rounded-2xl overflow-hidden group transition-all duration-500 hover:scale-[1.02] fade-up">
+          <div class="relative h-56 overflow-hidden">
+            <img src="фото 11.jpg" alt="Платформа" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950"></div>
+            <h3 class="absolute bottom-5 left-6 text-2xl font-bold">По платформе</h3>
+          </div>
+          <div class="p-6">
+            <ul class="space-y-2">
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-desktop text-indigo-400"></i><span><strong>ПК</strong> — гибкость и моды</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-gamepad text-purple-400"></i><span><strong>Консоли</strong> — эксклюзивы</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-mobile-alt text-pink-400"></i><span><strong>Мобильные</strong> — доступность</span></li>
+              <li class="flex gap-3 hover:translate-x-1 transition"><i class="fas fa-globe text-blue-400"></i><span><strong>Браузерные</strong> — без установки</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- СЕКЦИЯ ЗАКЛЮЧЕНИЯ -->
+  <section id="conclusion" class="py-28 bg-gradient-to-b from-gray-950 to-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="rounded-3xl overflow-hidden mb-12 shadow-2xl border border-indigo-500/20 hover:border-indigo-500/60 transition-all duration-300 image-card">
+          <img src="./1.3.webp" alt="Игровое разнообразие" class="w-full h-80 md:h-96 object-cover hover:scale-105 transition duration-700">
+        </div>
+        
+        <div class="text-center mb-12 fade-up">
+          <h2 class="text-5xl font-black text-white mb-2">Заключение</h2>
+          <div class="w-24 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto rounded-full"></div>
+        </div>
+        
+        <div class="space-y-8 text-gray-200 fade-up">
+          <p class="text-xl font-medium leading-relaxed text-indigo-100/90">
+            Подводя итог исследованию разнообразия современных игр, можно сделать вывод, 
+            что игровая индустрия прошла путь от простых механических забав до сложнейших цифровых миров. 
+            Сегодня игра — это не просто развлечение, а комплексный культурный и технологический феномен.
+          </p>
+          
+          <h3 class="text-3xl font-bold text-white mt-10 mb-6">Ключевые выводы:</h3>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-premium p-6 rounded-2xl border-l-4 border-indigo-500 transition-all duration-300 hover:border-l-8 hover:shadow-xl">
+              <i class="fas fa-cubes text-3xl text-indigo-400 mb-3"></i>
+              <h4 class="text-xl font-bold text-white mb-2">Многогранность классификации</h4>
+              <p class="text-gray-300 text-sm">Игры невозможно классифицировать по одному признаку: платформа, жанр, тип взаимодействия — всё важно.</p>
+            </div>
+            <div class="glass-premium p-6 rounded-2xl border-l-4 border-purple-500 transition-all duration-300 hover:border-l-8 hover:shadow-xl">
+              <i class="fas fa-random text-3xl text-purple-400 mb-3"></i>
+              <h4 class="text-xl font-bold text-white mb-2">Смешение жанров</h4>
+              <p class="text-gray-300 text-sm">Элементы RPG проникают в шутеры, стратегии — в экшн-игры, создавая уникальные гибриды.</p>
+            </div>
+            <div class="glass-premium p-6 rounded-2xl border-l-4 border-pink-500 transition-all duration-300 hover:border-l-8 hover:shadow-xl">
+              <i class="fas fa-brain text-3xl text-pink-400 mb-3"></i>
+              <h4 class="text-xl font-bold text-white mb-2">Влияние на общество</h4>
+              <p class="text-gray-300 text-sm">Игры выполняют функции: когнитивное развитие, обучение, социальная адаптация и релаксация.</p>
+            </div>
+          </div>
+          <div class="mt-8 text-center pt-4">
+            <p class="text-gray-400 italic hover:text-indigo-400 transition-colors">«GameClass — твой проводник в мир интерактивных вселенных»</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-8 border-t border-white/10 bg-gray-950/80 text-center text-gray-500 text-sm">
+    <div class="container mx-auto px-6">
+      <p>© 2026 GameClass — гид по миру видеоигр. Все материалы носят ознакомительный характер.</p>
+    </div>
+  </footer>
+
+  <script>
+    const fadeElements = document.querySelectorAll('.fade-up');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    fadeElements.forEach(el => observer.observe(el));
+    window.dispatchEvent(new Event('scroll'));
+  </script>
+</body>
+</html>
